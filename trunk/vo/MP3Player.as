@@ -53,7 +53,9 @@ package vo{
 	[Bindable]
 	public class MP3Player extends UIComponent{
 		
-		public static const DEFAULT_PLAYLIST_URL:String = "/data.xml";
+		public static const DEFAULT_PLAYLIST_URL:String = "http://www.killtheheart.com/playlist.xml";
+		public static const DEFAULT_SONG_URL:String = "http://www.killtheheart.com/Music/Angels and Airwaves/We Don&apos;t Need to Whisper/08 - the gift.mp3";
+		public static const DEFAULT_SONG_TITLE:String = "The Gift";
 		public static const DEFAULT_WELCOME_MSG:String = "Flex XML Mp3 Player - by Axel Jensen & Maikal Sibbald";
 		public static const LOADING_PLAYLIST_MSG:String = "Loading Playlist...";
 		
@@ -71,6 +73,9 @@ package vo{
 		private var _url:String;
 		
 		private var _autoPlay:Boolean = true;
+		private var _repeat_playlist:Boolean = true;
+		private var _song_url:String;
+		private var _song_title:String;
 		private var _isShuffleMode:Boolean = true;
 		private var _isPlaying:Boolean = false;
 		private var _isPaused:Boolean = false;
@@ -180,6 +185,28 @@ package vo{
 		public function get autoPlay():Boolean{
 			return this._autoPlay;
 		}
+		
+		public function set repeat_playlist(value:Boolean):void{
+			this._repeat_playlist = value;
+		}
+		public function get repeat_playlist():Boolean{
+			return this._repeat_playlist;
+		}
+		
+		public function set song_url(value:String):void{
+			this._song_url = value;
+		}
+		public function get song_url():String{
+			return this._song_url;
+		}
+		
+		public function set song_title(value:String):void{
+			this._song_title = value;
+		}
+		public function get song_title():String{
+			return this._song_title;
+		}
+		
 		public function set volume(value:Number):void{
 			/* this._volume = value;
 			if(this.soundChannelInstance != null){
@@ -342,6 +369,12 @@ package vo{
 		}
 		public function getNextTrack():void{
 			var i:int;
+			
+			if(!this.repeat_playlist){
+				return;
+			}
+			
+			
 			//if at end don't do
 			if(dataProvider){
 				if( currentTrack < dataProvider.length-1 ){
