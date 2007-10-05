@@ -44,9 +44,11 @@ package vo{
 	
 	import mx.utils.ObjectUtil;
 	import mx.collections.ArrayCollection;
+	import mx.events.CollectionEvent;
 	
 	[Event(name="play", type="flash.events.Event")]
 	[Event(name="pause", type="flash.events.Event")]
+	[Event(name="configComplete", type="flash.events.Event")]
 	[Event(name="onDelayViewChange", type="flash.events.Event")]
 	[Event(name="onDelayError", type="flash.events.Event")]
 	
@@ -58,6 +60,7 @@ package vo{
 		public static const DEFAULT_SONG_TITLE:String = "The Gift";
 		public static const DEFAULT_WELCOME_MSG:String = "Flex XML Mp3 Player - by Axel Jensen & Maikal Sibbald";
 		public static const LOADING_PLAYLIST_MSG:String = "Loading Playlist...";
+		public static const EVENT_CONFIG_COMPLETE:String = "configComplete";
 		
 		public var length:Number;
 		public var sLength:String				= "0.00";
@@ -68,7 +71,7 @@ package vo{
 		public var currentTrack:Number 			= -1;
 		public var currentTrackVO:TrackVO;
 		public var pausePosition:Number;
-		public var playlist_url:String;
+		public var playlist_url:String = MP3Player.DEFAULT_PLAYLIST_URL;
 
 		private var _url:String;
 		
@@ -258,7 +261,48 @@ package vo{
 		}
 		
 		
-		
+		public function getConfig(parameters:Object):void{
+			
+			var song_title:String = parameters.song_title;
+			if( song_title == '')
+				mp3Player.song_title = MP3Player.DEFAULT_SONG_TITLE;
+			else
+				mp3Player.song_title = song_title;
+			
+			
+			var playlist_url:String = parameters.playlist_url;
+			var song_url:String = parameters.song_url;
+			if( !playlist_url ){
+				
+				if( !song_url )
+					mp3Player.playlist_url = MP3Player.DEFAULT_PLAYLIST_URL;
+				else
+					mp3Player.song_url = song_url;
+			}
+			else
+				mp3Player.playlist_url = playlist_url;
+				
+				
+			var repeat_playlist:Boolean = parameters.repeat_playlist;
+			if( repeat_playlist )
+				mp3Player.repeat_playlist = true;
+			else
+				mp3Player.repeat_playlist = false;
+			
+			trace(mx.utils.ObjectUtil.toString(parameters));
+			var autoPlay:String = parameters.autoPlay;
+			autoPlay = autoPlay.toLowerCase();
+			if( autoPlay == '0' || autoPlay == 'false' )
+				mp3Player.autoPlay = false;
+			else if( autoPlay == null )
+				mp3Player.autoPlay = true;
+			else
+				mp3Player.autoPlay = Boolean(autoPlay);
+				
+				
+			this.dispatchEvent(new Event(MP3Player.EVENT_CONFIG_COMPLETE));
+			
+		}
 		public function get isLoading():Boolean{
 			if(this.soundInstance != null){
 				if(this.soundInstance.bytesLoaded < this.soundInstance.bytesTotal){
@@ -281,6 +325,8 @@ package vo{
 			this.delayMoveTrackTimer.addEventListener("timer",delayMoveTrackStatus);
 			this.delayViewChangeTimer.addEventListener("timer",delayViewChangeStatus);
 			this.delayErrorTimer.addEventListener("timer",delayErrorStatus);
+			
+			this.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE,onDataChangeHandler);
 			
 			this.soundInstance.addEventListener(Event.COMPLETE, completeHandler);
 			this.soundInstance.addEventListener(Event.OPEN, openHandler);
@@ -482,6 +528,10 @@ package vo{
 			  	pSeconds = Math.floor(position / 1000) % 60;
 			  	sPosition = pMinutes+":"+(pSeconds < 10?"0"+pSeconds:pSeconds);
 			  }
+		}
+		private function onDataChangeHandler(event:CollectionEvent):void{
+			if( autoPlay )
+				play();
 		}
 		private function completeHandler(event:Event):void {
 			this.dispatchEvent(event);

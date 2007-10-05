@@ -3,10 +3,14 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:v="views.*" 
 	xmlns:vp="views.player.*" 
-	width="600" height="300" backgroundColor="#000000"
-	layout="absolute" creationComplete="init()">
+	backgroundColor="#FFFFFF"
+	layout="absolute" height="115" width="255"
+	creationComplete="init()" horizontalAlign="center" verticalAlign="middle"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	backgroundGradientColors="[#FFFFFF, #FFFFFF]">
 <mx:Script>
 	<![CDATA[
+		import mx.utils.ObjectUtil;
 	/*
 	Copyright (c) 2007, Axel Jensen, Maikel Sibbald
 	All rights reserved.
@@ -54,9 +58,6 @@
 		[Bindable]
 		private var mp3Player:MP3Player = MP3Player.getInstance();
 		
-		[Bindable]
-		private var playerToggleIndex:Number;
-		
 		private function init():void{		
 			getConfig();
 		}
@@ -65,8 +66,11 @@
 			mp3Player.addEventListener(MP3Player.EVENT_CONFIG_COMPLETE,onConfigComplete);
 			mp3Player.getConfig(Application.application.parameters);
 			
+			
+			/*UNUSED IN THE SMALL VERSION
 			playerPanel.addEventListener("panelMenuChange",onPanelMenuChange);
 			mp3Player.addEventListener("onDelayViewChange",onDelayViewChange);
+			*/
 			mp3Player.addEventListener("onDelayError",onDelayError);
 		}
 		
@@ -79,7 +83,6 @@
 				//load the song url
 				loadSongURL();
 		}
-		
 		private function loadXMLReceived(event:ResultEvent):void{
 			//this will bring the xml back as an object by default... for optimization this is not typical... but works just fine for us here.
 			var x:XML = event.result as XML;
@@ -135,36 +138,22 @@
 			}
 		}
 		
-		
+		/*UNUSED IN THE SMALL VERSION
 		private function onDelayViewChange(event:Event):void{
 			if( playerToggleIndex != PLAYER_NOW_PLAYING )
 				playerToggleIndex = PLAYER_NOW_PLAYING
 		}
 		
-		
+		private function onPanelMenuChange(event:PanelMenuEvent):void{
+			playerToggleIndex = event.index;
+		}
+		*/
 		private function onDelayError(event:Event):void{
 			mp3Player.isPaused = false;
 			mp3Player.getNextTrack();
 		}
 		
 		
-		private function onPanelMenuChange(event:PanelMenuEvent):void{
-			playerToggleIndex = event.index;
-		}
-		
-		private function shuffleSongs():void{
-        	//stop the mp3_player
-			mp3Player.stop();
-			mp3Player.currentTrack = -1;
-			var oldArray:Array = this.nowPlayingGrid.dataProvider.source;
-			var newArray:Array = ArrayUtilities.randomize(oldArray);
-			
-			mp3Player.dataProvider.removeAll();
-			mp3Player.dataProvider.source = newArray;
-			//mp3Player.dataProvider.dispatchEvent(new Event("change"));
-			mp3Player.play();
-        }
-        
         private function dataTipFunction(item:Object):String{
             var tempString:String = 'Artist: ' + item.artist + '\n' + 'Album: ' + item.album + '\n' + 'Track Title: ' + item.title;
             return tempString;
@@ -176,50 +165,9 @@
 
 <mx:HTTPService id="loadXML" url="{mp3Player.playlist_url}" resultFormat="e4x" result="loadXMLReceived(event)" fault="Alert.show(event.fault.faultCode + '\n' + event.fault.faultDetail + '\n' + event.fault.faultString)"/>
 
-		<v:PanelMenu id="playerPanel" title="XML Flex Mp3 Player by Axel Jensen, Maikal Sibbald" 
-				headerColors="[#000000,#1F3F62]"
-				backgroundColor="#000000"
-				color="#FFFFFF"
-				borderColor="#000000" 
-				borderThickness="1" layout="horizontal" horizontalAlign="right"
-				left="5" top="5" right="5" bottom="5" 
-				width="100%" height="100%">
-			<mx:VBox width="20%">
-				<mx:Spacer height="35" />
-				<mx:Image source="{mp3Player.currentTrackVO.image}" width="100" height="100" click="mp3Player.getLink()" useHandCursor="true" />
-				<mx:LinkButton textAlign="center" label="info" click="mp3Player.getInfo()" />
-				<v:NavButton label="Shuffle Songs" click="shuffleSongs();" 
-					id="btnShuffleSongs" width="100%"
-					enabled="{mp3Player.isMoveTrackEnabled}"
-					color="#FFFFFF"
-					fillColors="[#000000,#3333ff]"
-					fillAlphas="[0.39, 0.4, 0.75, 0.65]"
-					/>
-			</mx:VBox>
-			<mx:ViewStack id="dataVS" width="80%" height="100%" selectedIndex="{playerToggleIndex}" >
-			
-				<mx:VBox id="vbPlayList" showEffect="WipeLeft" hideEffect="WipeRight" label="Playlist" height="100%" width="100%">
-						<mx:VBox width="100%" height="100%">
-							<mx:Label text="{mp3Player.currentTrack + 1} of {mp3Player.dataProvider.length}" width="100%"/>
-							<mx:List dataProvider="{mp3Player.dataProvider}" labelField="title"
-								id="nowPlayingGrid" dataTipFunction="dataTipFunction"
-								click="nowPlayingGridClick(event);"
-								enabled="{mp3Player.isMoveTrackEnabled}"
-								width="100%" height="100%"
-								backgroundAlpha="0.5"
-								backgroundColor="#000000" 
-								textRollOverColor="#000000"
-								color="#FFFFFF"
-								/>
-						</mx:VBox>
-				</mx:VBox>
 				
-				
-				<mx:VBox showEffect="WipeLeft" hideEffect="WipeRight" verticalAlign="bottom">
-					<vp:Controls backgroundColor="#000000" 
-						width="100%" height="50%" />
-				</mx:VBox>
-			</mx:ViewStack>
-		</v:PanelMenu>
+	<mx:HBox showEffect="WipeLeft" hideEffect="WipeRight" verticalAlign="middle" horizontalAlign="center">
+		<vp:ControlsSmall horizontalAlign="center" verticalAlign="middle" />
+	</mx:HBox>
 					
 </mx:Application>
