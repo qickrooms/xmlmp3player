@@ -1,4 +1,5 @@
 <cfparam name="URL.playlist_url" default="">
+<cfparam name="URL.autoPlay" default="1">
 
 <!-- saved from url=(0014)about:internet -->
 <html lang="en">
@@ -50,7 +51,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 
 	AC_FL_RunContent(
 		"src", "playerProductInstall",
-		"FlashVars", "playlist_url=#URL.playlist_url#&MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"FlashVars", "playlist_url=#URL.playlist_url#&autoPlay=#URL.autoPlay#&MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
 		"width", "${width}",
 		"height", "${height}",
 		"align", "middle",
@@ -74,7 +75,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"quality", "high",
 			"bgcolor", "#${bgcolor}",
 			"name", "${application}",
-			"flashvars",'playlist_url=#URL.playlist_url#&historyUrl=history.htm%3F&lconid=' + lc_id + '',
+			"flashvars",'playlist_url=#URL.playlist_url#&autoPlay=#URL.autoPlay#&historyUrl=history.htm%3F&lconid=' + lc_id + '',
 			"allowScriptAccess","sameDomain",
 			"type", "application/x-shockwave-flash",
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"
@@ -92,7 +93,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
 			id="${application}" width="${width}" height="${height}"
 			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
-			<param name="flashVars" value="playlist_url=#URL.playlist_url#" />
+			<param name="flashVars" value="playlist_url=#URL.playlist_url#&autoPlay=#URL.autoPlay#" />
 			<param name="movie" value="${swf}.swf" />
 			<param name="quality" value="high" />
 			<param name="bgcolor" value="#${bgcolor}" />
