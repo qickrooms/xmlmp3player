@@ -51,7 +51,7 @@
 			allowTrackClick="true" 
 			liveDragging="true" 
 			minimum="0" maximum="{mp3Player.length}" 
-			value="{mp3Player.position}" mouseUp="sliderMouseUp(event)"
+			value="{mp3Player.position}" thumbRelease="sliderMouseUp(event)" 
 			dataTipPlacement="top" 
 			dataTipFormatFunction="dataTipFunction"
 			width="100%"/>

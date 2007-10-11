@@ -416,17 +416,15 @@ package vo{
 		public function getNextTrack():void{
 			var i:int;
 			
-			if(!this.repeat_playlist){
-				return;
-			}
-			
-			
 			//if at end don't do
 			if(dataProvider){
 				if( currentTrack < dataProvider.length-1 ){
 					i = currentTrack + 1;
 					getTrackAt(i);
 				}else{
+					if(!this.repeat_playlist){
+						return;
+					}
 					getFirstTrack();
 				}
 			}else{
