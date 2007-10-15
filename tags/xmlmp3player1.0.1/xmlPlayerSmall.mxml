@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:v="views.*" 
+	xmlns:vp="views.player.*" 
+	backgroundColor="#FFFFFF"
+	layout="absolute" height="115" width="255"
+	creationComplete="init()" horizontalAlign="center" verticalAlign="middle"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	backgroundGradientColors="[#FFFFFF, #FFFFFF]">
+<mx:Script>
+	<![CDATA[
+		import mx.utils.ObjectUtil;
+	/*
+	Copyright (c) 2007, Axel Jensen, Maikel Sibbald
+	All rights reserved.
+	
+	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+	
+	    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+	    * Neither the name of the author nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+	
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	*/
+	/*
+		xml MP3Player version 0.1
+	    
+	    xml mp3 player.
+	    
+	    Created by Maikel Sibbald
+		info@flexcoders.nl
+		http://labs.flexcoders.nl
+		
+		&
+		
+		Axel Jensen
+		axel@cfwebtools.com	
+		http://axel.cfwebtools.com
+		
+		Free to use.... just give us some credit
+	*/
+		import mx.controls.listClasses.ListBase;
+		import vo.TrackVO;
+		import mx.collections.ArrayCollection;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import vo.MP3Player;
+		import mx.core.Application;
+		import mx.controls.Alert;
+		import events.PanelMenuEvent;
+		import util.ArrayUtilities;
+		
+		//PLAYER VIEWS STATIC CONST
+		public static const PLAYER_PLAYLIST:Number = 0;
+		public static const PLAYER_NOW_PLAYING:Number = 1;
+		
+		[Bindable]
+		private var mp3Player:MP3Player = MP3Player.getInstance();
+		
+		private function init():void{		
+			getConfig();
+		}
+		
+		private function getConfig():void{
+			mp3Player.getConfig(Application.application.parameters);
+			
+			
+			/*UNUSED IN THE SMALL VERSION
+			playerPanel.addEventListener("panelMenuChange",onPanelMenuChange);
+			mp3Player.addEventListener("onDelayViewChange",onDelayViewChange);
+			*/
+			mp3Player.addEventListener("onDelayError",onDelayError);
+		}
+		
+		
+		
+		//function used to dispatch click even to base component.
+		private function nowPlayingGridClick(event:Event):void{
+			var target:ListBase = ListBase(event.currentTarget);  				
+			if(	target.selectedIndex != -1 && target.selectedIndex != mp3Player.currentTrack){
+				var i:int = target.selectedIndex;
+				mp3Player.getTrackAt(i);
+			}
+		}
+		
+		/*UNUSED IN THE SMALL VERSION
+		private function onDelayViewChange(event:Event):void{
+			if( playerToggleIndex != PLAYER_NOW_PLAYING )
+				playerToggleIndex = PLAYER_NOW_PLAYING
+		}
+		
+		private function onPanelMenuChange(event:PanelMenuEvent):void{
+			playerToggleIndex = event.index;
+		}
+		*/
+		private function onDelayError(event:Event):void{
+			mp3Player.isPaused = false;
+			mp3Player.getNextTrack();
+		}
+		
+		
+        private function dataTipFunction(item:Object):String{
+            var tempString:String = 'Artist: ' + item.artist + '\n' + 'Album: ' + item.album + '\n' + 'Track Title: ' + item.title;
+            return tempString;
+        }
+	]]>
+</mx:Script>
+
+<mx:Style source="style.css"/>
+				
+	<mx:HBox showEffect="WipeLeft" hideEffect="WipeRight" verticalAlign="middle" horizontalAlign="center">
+		<vp:ControlsSmall horizontalAlign="center" verticalAlign="middle" />
+	</mx:HBox>
+					
+</mx:Application>
