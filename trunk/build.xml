@@ -1,0 +1,49 @@
+<!-- Note that the basedir is explicitly set! -->
+<project name="xmlMP3Player" default="build" basedir="C:\Documents and Settings\Axel\Desktop\xmlMP3Player">
+<!-- SVN settings -->
+<property name="projectName" value="xmlMP3Player"/>
+<property name="svn.revision" value="1.0.1"/>
+
+<!-- base dir -->
+<property name="build.basedir" value="C:\Documents and Settings\Axel\Desktop\xmlMP3Player" />
+<!-- A dir for temp files -->
+<property name="build.temp" value="Temp" />
+<!-- A dir for clean files -->
+<property name="build.clean" value="Clean" />
+<!-- Filename of the .zip to create -->
+<property name="build.filename" value="${projectName}_${svn.revision}.zip" />
+   
+
+<!-- Create the temp and clean dirs if necessary -->
+<target name="createArchiveDir">
+<mkdir dir="${build.temp}"/>
+<mkdir dir="${build.clean}"/>
+</target>
+
+<target name="build" depends="createArchiveDir">
+
+	<copy todir="${build.temp}">
+		<fileset dir="${build.basedir}"/>
+	</copy>
+	
+<!-- Remove any Eclipse .project files that someone may have committed -->
+<delete file="${build.temp}/.project" />
+
+<!-- Move it all to the clean dir -->            
+<copy todir="${build.clean}">
+	<fileset dir="${build.temp}">
+		<exclude name="**/*.svn"/>
+	</fileset>
+</copy>
+
+<!-- Zip up the clean dir and copy the zip to the basedir -->
+<zip destfile="${build.clean}/${build.filename}" basedir="${build.clean}" />
+<copy todir="">
+	<fileset dir="${build.clean}" includes="${build.filename}" />
+</copy>
+
+<!-- Remove temp and clean dirs -->
+<delete dir="${build.temp}" />
+<delete dir="${build.clean}" />
+</target>
+</project>
