@@ -52,6 +52,8 @@ var requiredRevision = ${version_revision};
 			// ]]>
 		</script>
 	</cfoutput>
-
+	<a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> - 
+	<a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayer.cfm?playlist_url=data.xml" target="_blank">Big Version</a> - 
+	<a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?playlist_url=data.xml&autoPlay=1" target="_blank">Small Version</a> <br/>
 </body>
 </html>
