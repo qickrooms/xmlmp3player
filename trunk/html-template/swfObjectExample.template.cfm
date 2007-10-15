@@ -42,7 +42,7 @@ var requiredRevision = ${version_revision};
 			// <![CDATA[
 			//params swfObject takes
 			//swf, id, w, h, ver, c, quality, xiRedirectUrl, redirectUrl, detectKey
-			var so = new SWFObject("${swf}", "${application}", "${width}", "${height}", "9", "#${bgcolor}", "high");
+			var so = new SWFObject("${swf}.swf", "${application}", "${width}", "${height}", "9", "#${bgcolor}", "high");
 			so.addVariable("playlist_url", "#URL.playlist_url#"); // this line is optional, but this example uses the variable and displays this text inside the flash movie
 			so.addVariable("song_title", "#URL.song_title#");
 			so.addVariable("song_url", "#URL.song_url#");

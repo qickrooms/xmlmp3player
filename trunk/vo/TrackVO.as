@@ -2,6 +2,7 @@ package vo
 {
 	//http://www.xspf.org/xspf-v1.html#rfc.section.4.1.1.2
 	//the above link is all the documentation on xspf, this loosely follows the spec
+	//alphabetical vars
 	[Bindable]
 	public class TrackVO
 	{
@@ -13,6 +14,8 @@ package vo
 		public var info:String;
 		public var link:String;
 		public var location:String;
+		public var timeEnd:Number = 0;
+		public var timeStart:Number = 0;
 		public var title:String;
 		public var trackNum:String;
 		
@@ -24,6 +27,8 @@ package vo
 								info:String, 
 								link:String, 
 								location:String,
+								timeEnd:Number,
+								timeStart:Number,
 								title:String, 
 								trackNum:String
 								)
@@ -36,6 +41,8 @@ package vo
 			this.info = info;
 			this.link = link;
 			this.location = location;
+			this.timeEnd = timeEnd;
+			this.timeStart = timeStart;
 			this.title = title;
 			this.trackNum = trackNum;
 		}
