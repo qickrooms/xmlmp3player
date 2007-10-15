@@ -47,7 +47,7 @@
 		text="{mp3Player.currentTrackVO.title} - {mp3Player.currentTrackVO.artist} - {mp3Player.currentTrackVO.album}" 
 		textAlign="center" color="#000000"/>
 
-	<mx:HSlider id="songSlider" change="sliderChange(event)" 
+	<mx:HSlider id="songSlider" thumbDrag="sliderChange(event)" 
 			allowTrackClick="true" 
 			liveDragging="true" 
 			minimum="0" maximum="{mp3Player.length}" 

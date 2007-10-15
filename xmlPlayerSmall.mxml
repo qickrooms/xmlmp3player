@@ -63,7 +63,6 @@
 		}
 		
 		private function getConfig():void{
-			mp3Player.addEventListener(MP3Player.EVENT_CONFIG_COMPLETE,onConfigComplete);
 			mp3Player.getConfig(Application.application.parameters);
 			
 			
@@ -74,59 +73,6 @@
 			mp3Player.addEventListener("onDelayError",onDelayError);
 		}
 		
-		private function onConfigComplete(event:Event):void{
-			
-			if( !mp3Player.song_url )
-				//load the xml file with the httpService
-				loadXML.send();
-			else
-				//load the song url
-				loadSongURL();
-		}
-		private function loadXMLReceived(event:ResultEvent):void{
-			//this will bring the xml back as an object by default... for optimization this is not typical... but works just fine for us here.
-			var x:XML = event.result as XML;
-			
-			var aTracks:Array = new Array();
-			for each(var t:XML in event.result.trackList.track){
-				var trackVO:TrackVO = new TrackVO(
-												t.album,
-												t.annotation,
-												t.artist,
-												t.creator,
-												t.image,
-												t.info,
-												t.link,
-												t.location,
-												t.title,
-												t.trackNum
-												);
-				aTracks.push(trackVO);
-			}
-			
-			mp3Player.dataProvider.source = aTracks;
-		}
-		
-		private function loadSongURL():void{
-			var aTracks:Array = new Array();
-			
-			var trackVO:TrackVO = new TrackVO(
-											'',
-											'',
-											'',
-											'',
-											'',
-											'',
-											'',
-											mp3Player.song_url,
-											mp3Player.song_title,
-											''
-											);
-			aTracks.push(trackVO);
-			
-			mp3Player.dataProvider.source = aTracks;
-											
-		}
 		
 		
 		//function used to dispatch click even to base component.
@@ -162,9 +108,6 @@
 </mx:Script>
 
 <mx:Style source="style.css"/>
-
-<mx:HTTPService id="loadXML" url="{mp3Player.playlist_url}" resultFormat="e4x" result="loadXMLReceived(event)" fault="Alert.show(event.fault.faultCode + '\n' + event.fault.faultDetail + '\n' + event.fault.faultString)"/>
-
 				
 	<mx:HBox showEffect="WipeLeft" hideEffect="WipeRight" verticalAlign="middle" horizontalAlign="center">
 		<vp:ControlsSmall horizontalAlign="center" verticalAlign="middle" />

@@ -45,6 +45,11 @@ package vo{
 	import mx.utils.ObjectUtil;
 	import mx.collections.ArrayCollection;
 	import mx.events.CollectionEvent;
+	import mx.rpc.http.HTTPService;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.events.FaultEvent;
+	import mx.controls.Alert;
+	import mx.binding.utils.*;
 	
 	[Event(name="play", type="flash.events.Event")]
 	[Event(name="pause", type="flash.events.Event")]
@@ -61,7 +66,13 @@ package vo{
 		public static const DEFAULT_WELCOME_MSG:String = "Flex XML Mp3 Player - by Axel Jensen & Maikal Sibbald";
 		public static const LOADING_PLAYLIST_MSG:String = "Loading Playlist...";
 		public static const EVENT_CONFIG_COMPLETE:String = "configComplete";
+		public static const EVENT_TIME_START_PASSED:String = "timeStartPassed";
+		public static const EVENT_TIME_END_PASSED:String = "timeEndPassed";
 		
+		public var timeStartSetter:ChangeWatcher;
+		public var timeEndSetter:ChangeWatcher;
+		public var _isTimeStartPassed:Boolean = false;
+		public var _isTimeEndPassed:Boolean = false;
 		public var length:Number;
 		public var sLength:String				= "0.00";
 		public var sPosition:String 			= "0.00";
@@ -71,14 +82,21 @@ package vo{
 		public var currentTrack:Number 			= -1;
 		public var currentTrackVO:TrackVO;
 		public var pausePosition:Number;
-		public var playlist_url:String = MP3Player.DEFAULT_PLAYLIST_URL;
+		public var loadXML:HTTPService;
 
 		private var _url:String;
 		
-		private var _autoPlay:Boolean = true;
-		private var _repeat_playlist:Boolean = true;
-		private var _song_url:String;
-		private var _song_title:String;
+		/**
+		 * Author: Axel Jensen
+		 * Update: 10.13.07
+		 * used for timeStart/timeEnd on trackVO it lets us determine wheter or not 
+		 * to start playing the song, or if it has already started playing... (as 
+		 * if someone might have paused it? or something along those lines)
+		 * it is only true when songs are in transit of skipping to a new song
+		 * it could also be true if someone pauses a song, and clicks next...
+		 * the _isNewTrack var gets set on the play() function
+		 **/
+		private var _isNewTrack:Boolean = true; 
 		private var _isShuffleMode:Boolean = true;
 		private var _isPlaying:Boolean = false;
 		private var _isPaused:Boolean = false;
@@ -89,6 +107,14 @@ package vo{
 		private var _volume:Number 	= 0;
 		private var _dataProvider:ArrayCollection = new ArrayCollection();
 		private var _soundInstancePosition:Number = 0;
+		
+		/*****************PLAYER CONFIG************/
+		public var playlist_url:String = MP3Player.DEFAULT_PLAYLIST_URL;
+		private var _autoPlay:Boolean = true;
+		private var _repeat_playlist:Boolean = true;
+		private var _song_url:String;
+		private var _song_title:String;
+		
 		
 		/********************TIMERS***************/
 		/*
@@ -111,6 +137,21 @@ package vo{
 		*/
 		private var delayErrorTimer:Timer = new Timer(4000,1);
 		
+		/*
+			Author: Axel Jensen
+			Update: 10.13.07
+			timeStartTimer is used to dispatch an event when the start time has passed on the currentTrackVO
+		*/
+		private var timeStartTimer:Timer = new Timer(1,0);
+		
+		/*
+			Author: Axel Jensen
+			Update: 10.13.07
+			timeEndTimer is used to dispatch an event when the end time has passed on the currentTrackVO
+		*/
+		private var timeEndTimer:Timer = new Timer(1,0);
+		
+		
 		
 		private var soundInstance:Sound;
 		private var soundChannelInstance:SoundChannel;
@@ -131,7 +172,70 @@ package vo{
 			this._isPlaying = false;
 			this._isResumeSet = false;
 			this.soundInstance = new Sound();
+			watchSetter(); //sets up bindings
 			this.setupListeners();
+			
+			if( !this.hasEventListener( Event.ENTER_FRAME ) )
+				this.addEventListener( Event.ENTER_FRAME, enterFrameHandler);
+			
+			
+			
+			//these listeners don't have top be reinvoked on ever new sound like the other ones are.
+			//TIMER LISTENERS
+			this.delayMoveTrackTimer.addEventListener("timer",delayMoveTrackStatus);
+			this.delayViewChangeTimer.addEventListener("timer",delayViewChangeStatus);
+			this.delayErrorTimer.addEventListener("timer",delayErrorStatus);
+			this.timeStartTimer.addEventListener("timer",onTimeStartTimer);
+			this.timeEndTimer.addEventListener("timer",onTimeEndTimer);
+			
+			this.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE,onDataChangeHandler);
+			
+			//CONFIG LISTENERS
+			this.addEventListener(MP3Player.EVENT_CONFIG_COMPLETE,onConfigComplete);
+			this.addEventListener(MP3Player.EVENT_TIME_START_PASSED,onTimeStartPassed);
+			this.addEventListener(MP3Player.EVENT_TIME_END_PASSED,onTimeEndPassed);
+			
+			//SETUP HTTP SERVICE
+			this.loadXML = new HTTPService();
+		}
+		
+		private function callForData():void{
+			loadXML.url = this.playlist_url;
+			loadXML.resultFormat = HTTPService.RESULT_FORMAT_E4X;
+			this.loadXML.addEventListener('result',onResult);
+			this.loadXML.addEventListener('fault',onFault);
+			loadXML.send();
+		}
+		
+		// ==========  BindingUtils.bindSetter =================
+		private function watchSetter():void{
+			timeStartSetter = BindingUtils.bindSetter(timeStartListener, this, "_isTimeStartPassed", true);
+			timeEndSetter = BindingUtils.bindSetter(timeEndListener, this, "_isTimeEndPassed", true);
+		}
+		
+		private function unwatchSetter():void{
+			if(timeStartSetter != null)timeStartSetter.unwatch();
+			if(timeEndSetter != null)timeEndSetter.unwatch();
+		}
+		
+		// Event listener when binding occurs. 
+		public function timeStartListener(object:*):void {
+			if( this._isTimeStartPassed ){
+				//trace('timeStartListenerAndPassed');
+				this.startTime = this.currentTrackVO.timeStart;
+				this.play();
+				this.timeStartTimer.stop();
+			}
+		}
+		// Event listener when binding occurs. 
+		public function timeEndListener(object:*):void {
+			if( this._isTimeEndPassed ){
+				if( this.currentTrackVO.timeEnd != 0 ){
+					//trace('timeEndListenerAndPassed');
+					this.pause();
+					this.timeEndTimer.stop();
+				}
+			}
 		}
 		
 		/*****************TIMER HANDLERS*************************/
@@ -149,6 +253,37 @@ package vo{
 				}
 			}
 		}
+		private function onTimeStartTimer(event:TimerEvent):void{
+			if(soundChannelInstance != null){
+
+				if( currentTrackVO == null || currentTrackVO.timeStart == 0 )
+					return;
+				
+			  	if( this.length > currentTrackVO.timeStart )
+			  	{
+				  	if( !this._isTimeStartPassed && !this._isNewTrack)
+				  	{
+			  			this.dispatchEvent(new Event(MP3Player.EVENT_TIME_START_PASSED));
+				  	}
+			  	}
+			}
+		}
+		private function onTimeEndTimer(event:TimerEvent):void{
+			if(soundChannelInstance != null){
+
+				if( currentTrackVO == null || currentTrackVO.timeEnd == 0 )
+					return;
+				
+				//trace( this.position );
+			  	if( this.position > currentTrackVO.timeEnd )
+			  	{
+			  		//_isTimeEndPassed changes in the enterFrameHandler
+				  	if( !this._isTimeEndPassed && !this._isNewTrack ){
+			  			this.dispatchEvent(new Event(MP3Player.EVENT_TIME_END_PASSED));
+				  	}
+			  	}
+			}
+		}
 		
 		/*****************TIMER HANDLERS*************************/
 		public function newSound():void{
@@ -160,6 +295,11 @@ package vo{
 			
 			//create new listeners
 			this.setupListeners();
+			
+			this._isNewTrack = true;
+			this._isTimeEndPassed = false;
+			this._isTimeStartPassed = false;
+			this.isMoveTrackEnabled = false;
 		}
 		
 		public function get dataProvider():ArrayCollection{
@@ -269,7 +409,7 @@ package vo{
 			else
 				mp3Player.song_title = song_title;
 			
-			
+			//trace(ObjectUtil.toString(parameters));
 			var playlist_url:String = parameters.playlist_url;
 			var song_url:String = parameters.song_url;
 			if( !playlist_url ){
@@ -289,7 +429,7 @@ package vo{
 			else
 				mp3Player.repeat_playlist = false;
 			
-			trace(mx.utils.ObjectUtil.toString(parameters));
+			//trace(mx.utils.ObjectUtil.toString(parameters));
 			var autoPlay:String = parameters.autoPlay;
 			autoPlay = autoPlay.toLowerCase();
 			if( autoPlay == '0' || autoPlay == 'false' )
@@ -321,24 +461,21 @@ package vo{
 		}
 		/******************************************CONTROLS***********************************************/
 		private function setupListeners():void{
-			//TIMER LISTENERS
-			this.delayMoveTrackTimer.addEventListener("timer",delayMoveTrackStatus);
-			this.delayViewChangeTimer.addEventListener("timer",delayViewChangeStatus);
-			this.delayErrorTimer.addEventListener("timer",delayErrorStatus);
-			
-			this.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE,onDataChangeHandler);
-			
 			this.soundInstance.addEventListener(Event.COMPLETE, completeHandler);
 			this.soundInstance.addEventListener(Event.OPEN, openHandler);
             this.soundInstance.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 			this.soundInstance.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			this.addEventListener( Event.ENTER_FRAME, enterFrameHandler);
+			
+			/*
+			if( !this.hasEventListener( Event.ENTER_FRAME ) )
+				this.addEventListener( Event.ENTER_FRAME, enterFrameHandler);
+			*/
 		}
 		private function removeListeners():void{
 			this.soundInstance.removeEventListener(Event.COMPLETE, doNothing);
-			this.soundInstance.addEventListener(Event.OPEN, doNothing);
-            this.soundInstance.addEventListener(IOErrorEvent.IO_ERROR, doNothing);
-			this.soundInstance.addEventListener(ProgressEvent.PROGRESS, doNothing);
+			this.soundInstance.removeEventListener(Event.OPEN, doNothing);
+            this.soundInstance.removeEventListener(IOErrorEvent.IO_ERROR, doNothing);
+			this.soundInstance.removeEventListener(ProgressEvent.PROGRESS, doNothing);
 		}
 		public function doNothing(event:Event):void{
 			//used when removing event listeners
@@ -355,21 +492,37 @@ package vo{
 		
 		public function play():void{
 			if(dataProvider){
+				
 				if(!this._isPlaying || this.isPaused){
-					if(this.currentTrack == -1){
+					if(this.currentTrack == -1)
+					{
 						this.getTrackAt(0);
-					}else{
+					}					
+					else
+					{
+						this._isNewTrack = false;
 						this._isPlaying = true;
 						this.isPaused = false;
-						this.soundChannelInstance = this.soundInstance.play(startTime);						
+						
+						this.soundChannelInstance = this.soundInstance.play(startTime);
 						var e:Event = new Event("play");
 						this.dispatchEvent(e);
-						
+						//trace('[timeStart]'+this.currentTrackVO.timeStart+'[timeEnd]'+this.currentTrackVO.timeEnd);
 						this.soundChannelInstance.soundTransform.volume = this._volume;
 						this.soundInstance.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 						this.soundInstance.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 						this.soundChannelInstance.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
 						this.pausePosition = 0;
+						
+						
+						//start our timeStart/timeEnd Timers
+						this.timeStartTimer.start();
+						this.timeEndTimer.start();
+							
+						if( !this._isTimeStartPassed && currentTrackVO.timeStart != 0)
+							pause();							
+						
+							
 					}//end current track == -1
 
 				}//end now Playing iff
@@ -419,7 +572,7 @@ package vo{
 			//if at end don't do
 			if(dataProvider){
 				if( currentTrack < dataProvider.length-1 ){
-					i = currentTrack + 1;
+					i = currentTrack + 1;					
 					getTrackAt(i);
 				}else{
 					if(!this.repeat_playlist){
@@ -457,19 +610,27 @@ package vo{
 		public function getTrackAt(i:int):void{
 			if(this.isMoveTrackEnabled){
 				//try catch catches errors that are thrown.
+				this.timeStartTimer.stop();
+				this.timeEndTimer.stop();
+				
 				try{
 					if(dataProvider.length){
 						if(this.isPlaying || this.isPaused)
 							this.stop();
 							
-						this.delayMoveTrackTimer.start();
-						this.isMoveTrackEnabled = false;
 						this.newSound();
+						
+						this.delayMoveTrackTimer.start();
 						this.sPosition = '0:00';
+						this.position = 0;
+						this.startTime = 0;
+						
+						this._isPlaying = false;
 						currentTrack = i;
 						currentTrackVO = TrackVO(dataProvider.getItemAt(i));
 						var _url:String = currentTrackVO.location + '?' + (new Date()).getTime();
 						this.url = _url;
+						
 						this.play();
 
 						//start the delayViewChange Timer so we can change views if necessarry
@@ -490,6 +651,7 @@ package vo{
 					this.getNextTrack();
 					trace('There was an error, track was skipped, this is still in beta testing, features are being added, and bugs are being fixed, please be patient');
 				}
+
 			}//end if is MoveTrackEnabled...
 		}
 		
@@ -506,6 +668,7 @@ package vo{
 		/******************************************HANDLERS***********************************************/
 		private function enterFrameHandler(event:Event):void {
 			  if(soundChannelInstance != null){
+			  	
 			  	if(isPaused || isPaused == 'undefined'){
 			  		position = startTime;
 			  	}else{
@@ -520,8 +683,9 @@ package vo{
 			  			&& !this.delayErrorTimer.running)
 			  		this.delayErrorTimer.start();
 			  		
+			  	//trace('[enterFrame this.length]' + this.length);
+			  		
 			  	//trace('[enter_frameOutsideIf]'+soundChannelInstance.position);
-			  	
 			  	pMinutes = Math.floor(position / 1000 / 60);
 			  	pSeconds = Math.floor(position / 1000) % 60;
 			  	sPosition = pMinutes+":"+(pSeconds < 10?"0"+pSeconds:pSeconds);
@@ -564,9 +728,86 @@ package vo{
 				var tempSeconds:Number = Math.floor(this.length  / 1000) % 60;
 				
 				this.sLength = tempMinutes+":"+(tempSeconds < 10?"0"+tempSeconds:tempSeconds);
+				
          	}
          	this.dispatchEvent(event);
         }
+        
+        
+        //happens when MP3Player.EVENT_TIME_START_PASSED is dispatched
+        private function onTimeStartPassed(event:Event):void{
+        	//trace('timeStartPassed');
+	        this._isTimeStartPassed = true;
+        }
+        //happens when MP3Player.EVENT_TIME_END_PASSED is dispatched
+        private function onTimeEndPassed(event:Event):void{
+        	//trace('timeEndPassed');
+       		this._isTimeEndPassed = true;
+        }
+        private function onConfigComplete(event:Event):void{
+			
+			if( !this.song_url )
+				//load the xml file with the httpService
+				this.callForData();
+			else
+				//load the song url
+				loadSongURL();
+		}
+		
+		private function onResult(event:ResultEvent):void{
+			//this will bring the xml back as an object by default... for optimization this is not typical... but works just fine for us here.
+			var x:XML = event.result as XML;
+			
+			var aTracks:Array = new Array();
+			for each(var t:XML in event.result.trackList.track){
+				var trackVO:TrackVO = new TrackVO(
+												t.album,
+												t.annotation,
+												t.artist,
+												t.creator,
+												t.image,
+												t.info,
+												t.link,
+												t.location,
+												t.timeEnd,
+												t.timeStart,
+												t.title,
+												t.trackNum
+												);
+				aTracks.push(trackVO);
+			}
+			
+			this.dataProvider.source = aTracks;
+		}
+		
+		private function onFault(event:FaultEvent):void{
+			Alert.show(event.fault.faultString);
+		}
+		
+		private function loadSongURL():void{
+			var aTracks:Array = new Array();
+			
+			var trackVO:TrackVO = new TrackVO(
+											'',
+											'',
+											'',
+											'',
+											'',
+											'',
+											'',
+											this.song_url,
+											0,
+											0,
+											this.song_title,
+											''
+											);
+			aTracks.push(trackVO);
+			
+			this.dataProvider.source = aTracks;
+											
+		}
+		
+		
 
 	}
 }
