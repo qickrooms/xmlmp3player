@@ -136,6 +136,7 @@ var requiredRevision = ${version_revision};
 			</ul>
 		<li>Place those files in whatever folder you would like under your webroot and then run the page in a browser (http://yourdomain/whereyouputthefiles/index.cfm (if you dont have coldfusion, please open up the cfm file with wordpad, and fix the code, it's pretty self explanatory, mostly it's just html)</li>
 		<li>When you run the page, a default playlist will start playing if you have not provided one on the url</li>
+		<li>(i.e.) http://yourdomain/whereyouputthefiles/index.cfm?playlist_url=data.xml</li>
 		<li>please submit bugs to the google code site! I WILL FIX THEM I PROMISE! (the issues tab) <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a></li>
 	</ol>
 </body>
