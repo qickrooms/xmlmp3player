@@ -56,7 +56,7 @@ var requiredRevision = ${version_revision};
 		<li><b>Resources</b></li>
 		<li><a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a></li>
 		<li><a href="http://labs.flexcoders.nl/?p=113" target="_blank">labs.flexcoders.nl</a></li>
-		<li><a href="http://axel.cfwebtools.com" target="_blank">axel.cfwebtools.com</a></li>
+		<li><a href="http://axel.cfwebtools.com/index.cfm/2007/10/18/Open-source-flex-xml-mp3-player" target="_blank">axel.cfwebtools.com</a></li>
 		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayer.cfm?playlist_url=data.xml" target="_blank">Big Version</a></li>
 		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?playlist_url=data.xml&autoPlay=1" target="_blank">Small Version</a></li>
 	</ul>
@@ -72,7 +72,7 @@ var requiredRevision = ${version_revision};
 		<li><a href="http://www.killtheheart.com" target="_blank">Axel's site to listen to music (please don't tell the RIAA)</a></li>
 	</ul>
 	<ul>
-		<li><b>Things that i hope for</b></li>
+		<li><b>Things that I hope for</b></li>
 		<li>to get the podcast version relased</li>
 		<li>people will report bugs (the issues tab) on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
 		<li>people will report features they want on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
@@ -80,6 +80,45 @@ var requiredRevision = ${version_revision};
 	<ul>
 		<li><b>Examples - Coming soon (hopefully people start to use it and email make me some tutorials)</b></li>
 		<li>How to Skin the mp3 player</li>
+	</ul>
+	
+	<b>xml details (listed alphabetically)</b>
+	<ul>
+		<li>album</li>
+			<ul><li>the album name of this track... leave blank if you wish this shows up in the big version on the bottom of the "now playing" view</li></ul>
+		<li>annotaion</li>
+			<ul><li>unused at the moment, please refer to xspf documenation for information</li></ul>
+		<li>artist</li>
+			<ul><li>the artist name of this track... leave blank if you wish this shows up in the big version in the middle of the "now playing" view</li></ul>
+		<li>creator</li>
+			<ul><li>the developer... this is just documentation in my eyes, but please refer to xspf docs</li></ul>
+		<li>image</li>
+			<ul><li>in the big version of the player, if you specify a url of the image you want, it will show on the left while the track is playing</li></ul>
+		<li>info</li>
+			<ul><li>there is an info button on the big version, it's simply another URL you could specify, and it will produce a popup window for it.</li></ul>
+		<li>link</li>
+			<ul><li>there is an image in the big version, specify a URL here, and when you click on the album in the big version it will give you a popup to the address you specify.</li></ul>
+		<li>location</li>
+			<ul>
+				<li>the most import piece of the puzzle</li>
+				<li>the url of the song (can be a URL, or relative path)</li>
+			</ul>
+		<li>timeEnd</li>
+			<ul>
+				<li>use this to pause the song at a certain point, say you only want the user to listen to 0:15 - 0:20, make the timeEnd 20000 (not exact but close enough, it's milliseconds) </li>
+				<li>specify a 0 to just play through the end</li>
+				<li>NOTE: it is milliseconds!</li>
+			</ul>
+		<li>timeStart</li>
+			<ul>
+				<li>use this to start the song at a certain point, say you only want the user to listen to 0:15 - 0:20, make the timeStart 15000 (not exact but close enough, it's milliseconds) </li>
+				<li>specify a 0 to just play from the begining</li>
+				<li>NOTE: it is milliseconds!</li>
+			</ul>
+		<li>title</li>
+			<ul><li>this is the track title - it is displayed in the top of the 'now playing' view in the big version (note: doesnt necessarily have to be the track title it could just be whatever you chose to name the file... it's up to you)</li></ul>
+		<li>trackNum</li>
+			<ul><li>unused at the moment, but could be used for documentation </li></ul>
 	</ul>
 	
 	<b>Instructions</b>
