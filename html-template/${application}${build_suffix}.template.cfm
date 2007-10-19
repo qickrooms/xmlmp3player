@@ -52,8 +52,52 @@ var requiredRevision = ${version_revision};
 			// ]]>
 		</script>
 	</cfoutput>
-	<a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> - 
-	<a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayer.cfm?playlist_url=data.xml" target="_blank">Big Version</a> - 
-	<a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?playlist_url=data.xml&autoPlay=1" target="_blank">Small Version</a> <br/>
+	<ul>
+		<li><b>Resources</b></li>
+		<li><a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a></li>
+		<li><a href="http://labs.flexcoders.nl/?p=113" target="_blank">labs.flexcoders.nl</a></li>
+		<li><a href="http://axel.cfwebtools.com" target="_blank">axel.cfwebtools.com</a></li>
+		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayer.cfm?playlist_url=data.xml" target="_blank">Big Version</a></li>
+		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?playlist_url=data.xml&autoPlay=1" target="_blank">Small Version</a></li>
+	</ul>
+	<ul>
+		<li><b>Download</b></li>
+		<li><a href="http://axel.cfwebtools.com/download/xmlMp3Player/xmlMP3PlayerBig_1.0.1.zip" target="_blank">Download the Big version to use</a></li>
+		<li><a href="http://axel.cfwebtools.com/download/xmlMp3Player/xmlMP3PlayerSmall_1.0.1.zip" target="_blank">Download the Small version to use</a></li>
+		<li><a href="http://axel.cfwebtools.com/download/xmlMp3Player/xmlMP3PlayerFlexSource_1.0.1.zip" target="_blank">Download the Flex Source</a></li>
+	</ul>
+	<ul>
+		<li><b>People using</b></li>
+		<li><a href="http://flex.org/community" target="_blank">flex.org (using a version geared for podcasts)</a></li>
+		<li><a href="http://www.killtheheart.com" target="_blank">Axel's site to listen to music (please don't tell the RIAA)</a></li>
+	</ul>
+	<ul>
+		<li><b>Things that i hope for</b></li>
+		<li>to get the podcast version relased</li>
+		<li>people will report bugs (the issues tab) on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
+		<li>people will report features they want on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
+	</ul>
+	<ul>
+		<li><b>Examples - Coming soon (hopefully people start to use it and email make me some tutorials)</b></li>
+		<li>How to Skin the mp3 player</li>
+	</ul>
+	
+	<b>Instructions</b>
+	<ol>
+		<li>Download whatever version you want (big/small) by clicking the links above</li>
+		<ul>
+			<li>if your just using the product and dont care about the source, click on the links under <b>Download</b> section, that dont have the word "source"</li>
+		</ul>
+		<li>When you download it, there are 4 files</li>
+			<ul>
+				<li>data.xml (sample xml file)</li>
+				<li>swfobject.js (swfobject.js used for including the swf file in your html/cfm/php/whatever else page) (NOTE: i'll try to keep up on new versions of swfobject but no gurantees if you want the latest and greatest go to http://blog.deconcept.com/swfobject/</li>
+				<li>xmlPlayer(Small/Big).cfm (Small/Big depending on the version you downloaded... these are example cfm files to reference to for using swfObject to include your .swf... if you have any experience with using flash files on html pages, you should have not problem googling other ways besides swfobject)</li>
+				<li>xmlPlayer(Small/Big).swf (this is the actual swf file to use)</li>
+			</ul>
+		<li>Place those files in whatever folder you would like under your webroot and then run the page in a browser (http://yourdomain/whereyouputthefiles/index.cfm (if you dont have coldfusion, please open up the cfm file with wordpad, and fix the code, it's pretty self explanatory, mostly it's just html)</li>
+		<li>When you run the page, a default playlist will start playing if you have not provided one on the url</li>
+		<li>please submit bugs to the google code site! I WILL FIX THEM I PROMISE! (the issues tab) <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a></li>
+	</ol>
 </body>
 </html>
