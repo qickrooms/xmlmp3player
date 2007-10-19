@@ -431,7 +431,8 @@ package vo{
 			
 			//trace(mx.utils.ObjectUtil.toString(parameters));
 			var autoPlay:String = parameters.autoPlay;
-			autoPlay = autoPlay.toLowerCase();
+			
+			if( autoPlay != null)autoPlay = autoPlay.toLowerCase();
 			if( autoPlay == '0' || autoPlay == 'false' )
 				mp3Player.autoPlay = false;
 			else if( autoPlay == null )
