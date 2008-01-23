@@ -61,6 +61,8 @@ var requiredRevision = ${version_revision};
 		<li><a href="http://axel.cfwebtools.com/index.cfm/2007/10/18/Open-source-flex-xml-mp3-player" target="_blank">axel.cfwebtools.com</a></li>
 		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayer.cfm?playlist_url=data.xml" target="_blank">Big Version</a></li>
 		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?playlist_url=data.xml&autoPlay=1" target="_blank">Small Version</a></li>
+		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/podcastPlayer.cfm?podcast_mode=true&playlist_url=http://www.theflexshow.com/blog/rss.cfm" target="_blank">Podcast Version (note the url - podcast_mode = true)</a></li>
+		<li><a href="http://axel.cfwebtools.com/Examples/xspfPlayer/bin/xmlPlayerSmall.cfm?podcast_mode=true&playlist_url=http://www.theflexshow.com/blog/rss.cfm" target="_blank">Podcast Version Small(note the url - podcast_mode = true)</a></li>
 	</ul>
 	<ul>
 		<li><b>Download</b></li>
@@ -75,7 +77,7 @@ var requiredRevision = ${version_revision};
 	</ul>
 	<ul>
 		<li><b>Things that I hope for</b></li>
-		<li>to get the podcast version relased</li>
+		<li>to get the volume working</li>
 		<li>people will report bugs (the issues tab) on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
 		<li>people will report features they want on the google code site <a href="http://code.google.com/p/xmlmp3player/" target="_blank">Google Code</a> </li>
 	</ul>
