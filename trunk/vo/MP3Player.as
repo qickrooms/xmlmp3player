@@ -37,6 +37,7 @@ package vo{
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundMixer;
+	import flash.media.SoundTransform;
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
 	
@@ -104,7 +105,7 @@ package vo{
 		private var _isMoveTrackEnabled:Boolean = true;
 		private var _isLoading:Boolean;
 		private var _startTime:Number;
-		private var _volume:Number 	= 0;
+		private var _volume:Number 	= 1;
 		private var _dataProvider:ArrayCollection = new ArrayCollection();
 		private var _soundInstancePosition:Number = 0;
 		
@@ -112,6 +113,7 @@ package vo{
 		public var playlist_url:String = MP3Player.DEFAULT_PLAYLIST_URL;
 		private var _autoPlay:Boolean = true;
 		private var _repeat_playlist:Boolean = true;
+		private var _podcast_mode:Boolean = false;
 		private var _song_url:String;
 		private var _song_title:String;
 		
@@ -202,7 +204,12 @@ package vo{
 		private function callForData():void{
 			loadXML.url = this.playlist_url;
 			loadXML.resultFormat = HTTPService.RESULT_FORMAT_E4X;
-			this.loadXML.addEventListener('result',onResult);
+			
+			if(this.podcast_mode)
+				this.loadXML.addEventListener('result',onPodcastResult);
+			else
+				this.loadXML.addEventListener('result',onResult);
+				
 			this.loadXML.addEventListener('fault',onFault);
 			loadXML.send();
 		}
@@ -329,6 +336,13 @@ package vo{
 			return this._autoPlay;
 		}
 		
+		public function set podcast_mode(value:Boolean):void{
+			this._podcast_mode = value;
+		}
+		public function get podcast_mode():Boolean{
+			return this._podcast_mode;
+		}
+		
 		public function set repeat_playlist(value:Boolean):void{
 			this._repeat_playlist = value;
 		}
@@ -351,10 +365,15 @@ package vo{
 		}
 		
 		public function set volume(value:Number):void{
-			/* this._volume = value;
+			this._volume = value;
 			if(this.soundChannelInstance != null){
+				var trans:SoundTransform = new SoundTransform(this._volume, 0);
 				this.soundChannelInstance.soundTransform.volume = this._volume;
-			} */
+			}
+		}
+		
+		public function get volume():Number{
+			return this._volume;
 		}
 		
 		public function get isPlaying():Boolean{
@@ -421,6 +440,16 @@ package vo{
 			}
 			else
 				mp3Player.playlist_url = playlist_url;
+				
+				
+			var podcast_mode:String = parameters.podcast_mode;
+			if( podcast_mode != null)podcast_mode = podcast_mode.toLowerCase();
+			if( podcast_mode == '0' || podcast_mode == 'false' )
+				mp3Player.podcast_mode = false;
+			else if( podcast_mode == null )
+				mp3Player.podcast_mode = false;
+			else
+				mp3Player.podcast_mode = Boolean(podcast_mode);
 				
 				
 			var repeat_playlist:Boolean = parameters.repeat_playlist;
@@ -504,11 +533,14 @@ package vo{
 						this._isNewTrack = false;
 						this._isPlaying = true;
 						this.isPaused = false;
+						var trans:SoundTransform = new SoundTransform(1, 0);
+
 						
 						this.soundChannelInstance = this.soundInstance.play(startTime);
 						var e:Event = new Event("play");
 						this.dispatchEvent(e);
 						//trace('[timeStart]'+this.currentTrackVO.timeStart+'[timeEnd]'+this.currentTrackVO.timeEnd);
+						trans.volume = this._volume;
 						this.soundChannelInstance.soundTransform.volume = this._volume;
 						this.soundInstance.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 						this.soundInstance.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
@@ -747,6 +779,7 @@ package vo{
         }
         private function onConfigComplete(event:Event):void{
 			
+			
 			if( !this.song_url )
 				//load the xml file with the httpService
 				this.callForData();
@@ -770,6 +803,41 @@ package vo{
 												t.info,
 												t.link,
 												t.location,
+												t.timeEnd,
+												t.timeStart,
+												t.title,
+												t.trackNum
+												);
+				aTracks.push(trackVO);
+			}
+			
+			this.dataProvider.source = aTracks;
+		}
+		
+		private function onPodcastResult(event:ResultEvent):void{
+			//this will bring the xml back as an object by default... for optimization this is not typical... but works just fine for us here.
+			var x:XML = event.result as XML;
+			var aTracks:Array = new Array();
+			/*
+			for each(var p:XML in event.result.channel.item){
+				var tempDate:String = p.pubDate;
+				tempDate = tempDate.substr(0,16);
+				//trace(tempDate.substr(0,16));
+				var enclosureVO:EnclosureVO = new EnclosureVO(p.enclosure.@url,p.enclosure.@length,p.title,tempDate);
+				tempArray.push(enclosureVO);
+			}
+			*/
+			var artist:String = event.result.channel.title; //ends up being the "artist" in the interface
+			for each(var t:XML in event.result.channel.item){
+				var trackVO:TrackVO = new TrackVO(
+												t.album,
+												t.annotation,
+												artist,
+												t.author,
+												t.image,
+												t.info,
+												t.link,
+												t.enclosure.@url,
 												t.timeEnd,
 												t.timeStart,
 												t.title,

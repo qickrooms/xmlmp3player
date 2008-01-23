@@ -1,5 +1,6 @@
 <cfparam name="URL.playlist_url" default="">
 <cfparam name="URL.autoPlay" default="1">
+<cfparam name="URL.podcast_mode" default="0">
 <cfparam name="URL.song_title" default="">
 <cfparam name="URL.song_url" default="">
 
@@ -46,6 +47,7 @@ var requiredRevision = ${version_revision};
 			so.addVariable("playlist_url", "#URL.playlist_url#"); // this line is optional, but this example uses the variable and displays this text inside the flash movie
 			so.addVariable("song_title", "#URL.song_title#");
 			so.addVariable("song_url", "#URL.song_url#");
+			so.addVariable("podcast_mode", "#URL.podcast_mode#");
 			so.addVariable("autoPlay", "#URL.autoPlay#");
 			so.write("flashcontent");
 			
