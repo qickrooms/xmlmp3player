@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:v="views.*" 
+	xmlns:vp="views.player.*" 
+	width="600" height="300" backgroundColor="#000000"
+	layout="absolute" creationComplete="init()" viewSourceURL="srcview/index.html">
+<mx:Script>
+	<![CDATA[
+	/*
+	Copyright (c) 2007, Axel Jensen, Maikel Sibbald
+	All rights reserved.
+	
+	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+	
+	    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+	    * Neither the name of the author nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+	
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	*/
+	/*
+		xml MP3Player version 0.1
+	    
+	    xml mp3 player.
+	    
+	    Created by Maikel Sibbald
+		info@flexcoders.nl
+		http://labs.flexcoders.nl
+		
+		&
+		
+		Axel Jensen
+		axel@cfwebtools.com	
+		http://axel.cfwebtools.com
+		
+		Free to use.... just give us some credit
+	*/
+		import mx.controls.listClasses.ListBase;
+		import vo.TrackVO;
+		import mx.collections.ArrayCollection;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import vo.MP3Player;
+		import mx.core.Application;
+		import mx.controls.Alert;
+		import events.PanelMenuEvent;
+		import util.ArrayUtilities;
+		
+		//PLAYER VIEWS STATIC CONST
+		public static const PLAYER_PLAYLIST:Number = 0;
+		public static const PLAYER_NOW_PLAYING:Number = 1;
+		
+		[Bindable]
+		private var mp3Player:MP3Player = MP3Player.getInstance();
+		
+		[Bindable]
+		private var playerToggleIndex:Number;
+		
+		private function init():void{		
+			getConfig();
+		}
+		
+		private function getConfig():void{
+			mp3Player.getConfig(Application.application.parameters);
+			
+			playerPanel.addEventListener("panelMenuChange",onPanelMenuChange);
+			mp3Player.addEventListener("onDelayViewChange",onDelayViewChange);
+			mp3Player.addEventListener("onDelayError",onDelayError);
+		}
+		
+		//function used to dispatch click even to base component.
+		private function nowPlayingGridClick(event:Event):void{
+			var target:ListBase = ListBase(event.currentTarget);  				
+			if(	target.selectedIndex != -1 && target.selectedIndex != mp3Player.currentTrack){
+				var i:int = target.selectedIndex;
+				mp3Player.getTrackAt(i);
+			}
+		}
+		
+		
+		private function onDelayViewChange(event:Event):void{
+			if( playerToggleIndex != PLAYER_NOW_PLAYING )
+				playerToggleIndex = PLAYER_NOW_PLAYING
+		}
+		
+		
+		private function onDelayError(event:Event):void{
+			mp3Player.isPaused = false;
+			mp3Player.getNextTrack();
+		}
+		
+		
+		private function onPanelMenuChange(event:PanelMenuEvent):void{
+			playerToggleIndex = event.index;
+		}
+		
+		private function shuffleSongs():void{
+        	//stop the mp3_player
+			mp3Player.stop();
+			mp3Player.currentTrack = -1;
+			var oldArray:Array = this.nowPlayingGrid.dataProvider.source;
+			var newArray:Array = ArrayUtilities.randomize(oldArray);
+			
+			mp3Player.dataProvider.removeAll();
+			mp3Player.dataProvider.source = newArray;
+			//mp3Player.dataProvider.dispatchEvent(new Event("change"));
+			mp3Player.play();
+        }
+        
+        private function dataTipFunction(item:Object):String{
+            var tempString:String = 'Artist: ' + item.artist + '\n' + 'Album: ' + item.album + '\n' + 'Track Title: ' + item.title;
+            return tempString;
+        }
+	]]>
+</mx:Script>
+
+<mx:Style source="style.css"/>
+
+		<v:PanelMenu id="playerPanel" title="XML Flex Mp3 Player by Axel Jensen, Maikal Sibbald" 
+				headerColors="[#000000,#1F3F62]"
+				backgroundColor="#000000"
+				color="#FFFFFF"
+				borderColor="#000000" 
+				borderThickness="1" layout="horizontal" horizontalAlign="right"
+				left="5" top="5" right="5" bottom="5" 
+				width="100%" height="100%">
+			<mx:VBox width="20%">
+				<mx:Spacer height="35" />
+				<mx:Image source="{mp3Player.currentTrackVO.image}" width="100" height="100" click="mp3Player.getLink()" useHandCursor="true" />
+				<mx:LinkButton textAlign="center" label="info" click="mp3Player.getInfo()" />
+				<v:NavButton label="Shuffle Songs" click="shuffleSongs();" 
+					id="btnShuffleSongs" width="100%"
+					enabled="{mp3Player.isMoveTrackEnabled}"
+					color="#FFFFFF"
+					fillColors="[#000000,#3333ff]"
+					fillAlphas="[0.39, 0.4, 0.75, 0.65]"
+					/>
+			</mx:VBox>
+			<mx:ViewStack id="dataVS" width="80%" height="100%" selectedIndex="{playerToggleIndex}" >
+			
+				<mx:VBox id="vbPlayList" showEffect="WipeLeft" hideEffect="WipeRight" label="Playlist" height="100%" width="100%">
+						<mx:VBox width="100%" height="100%">
+							<mx:Label text="{mp3Player.currentTrack + 1} of {mp3Player.dataProvider.length}" width="100%"/>
+							<mx:List dataProvider="{mp3Player.dataProvider}" labelField="title"
+								id="nowPlayingGrid" dataTipFunction="dataTipFunction"
+								click="nowPlayingGridClick(event);"
+								enabled="{mp3Player.isMoveTrackEnabled}"
+								width="100%" height="100%"
+								backgroundAlpha="0.5"
+								backgroundColor="#000000" 
+								textRollOverColor="#000000"
+								color="#FFFFFF"
+								/>
+						</mx:VBox>
+				</mx:VBox>
+				
+				
+				<mx:VBox showEffect="WipeLeft" hideEffect="WipeRight" verticalAlign="bottom">
+					<vp:Controls backgroundColor="#000000" 
+						width="100%" height="50%" />
+				</mx:VBox>
+			</mx:ViewStack>
+		</v:PanelMenu>
+					
+</mx:Application>
