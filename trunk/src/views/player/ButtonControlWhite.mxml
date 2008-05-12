@@ -22,6 +22,13 @@
 		
 		[Bindable]
 		private var	mp3Player:MP3Player = MP3Player.getInstance();
+		
+		private function sliderMouseUp(event:Event):void{
+        	mp3Player.volume = volumeSlider.value;
+        }
+        private function sliderChange(event:Event):void{			
+        	mp3Player.volume = volumeSlider.value;
+		}
 
 	]]>
 </mx:Script>
@@ -45,4 +52,16 @@
 		click="mp3Player.getNextTrack();" 
 		enabled="{mp3Player.isMoveTrackEnabled}"
 		width="27"/>
+	<mx:HSlider 
+		id="volumeSlider"
+		width="50"
+		minimum="0"
+		maximum="100"
+		allowTrackClick="true" 
+		toolTip="Volume"
+		liveDragging="true" 
+		change="sliderChange(event)" 
+		value="{mp3Player.volume}"
+		thumbRelease="sliderMouseUp(event)" 
+		/>
 </mx:HBox>

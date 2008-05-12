@@ -29,28 +29,25 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 package vo{
-	import flash.net.*;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
-	import flash.media.SoundMixer;
 	import flash.media.SoundTransform;
+	import flash.net.*;
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
 	
-	import mx.core.UIComponent;
-	
-	import mx.utils.ObjectUtil;
-	import mx.collections.ArrayCollection;
-	import mx.events.CollectionEvent;
-	import mx.rpc.http.HTTPService;
-	import mx.rpc.events.ResultEvent;
-	import mx.rpc.events.FaultEvent;
-	import mx.controls.Alert;
 	import mx.binding.utils.*;
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.core.UIComponent;
+	import mx.events.CollectionEvent;
+	import mx.rpc.events.FaultEvent;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.http.HTTPService;
 	
 	[Event(name="play", type="flash.events.Event")]
 	[Event(name="pause", type="flash.events.Event")]
@@ -105,7 +102,7 @@ package vo{
 		private var _isMoveTrackEnabled:Boolean = true;
 		private var _isLoading:Boolean;
 		private var _startTime:Number;
-		private var _volume:Number 	= 1;
+		private var _volume:Number 	= 100;
 		private var _dataProvider:ArrayCollection = new ArrayCollection();
 		private var _soundInstancePosition:Number = 0;
 		
@@ -364,16 +361,11 @@ package vo{
 			return this._song_title;
 		}
 		
+		public function get volume():Number{
+			return _volume;
+		}
 		public function set volume(value:Number):void{
 			this._volume = value;
-			if(this.soundChannelInstance != null){
-				var trans:SoundTransform = new SoundTransform(this._volume, 0);
-				this.soundChannelInstance.soundTransform.volume = this._volume;
-			}
-		}
-		
-		public function get volume():Number{
-			return this._volume;
 		}
 		
 		public function get isPlaying():Boolean{
@@ -722,6 +714,9 @@ package vo{
 			  	pMinutes = Math.floor(position / 1000 / 60);
 			  	pSeconds = Math.floor(position / 1000) % 60;
 			  	sPosition = pMinutes+":"+(pSeconds < 10?"0"+pSeconds:pSeconds);
+			  	if(this.soundChannelInstance != null){
+					this.soundChannelInstance.soundTransform = new SoundTransform(this._volume/100);
+				}
 			  }
 		}
 		private function onDataChangeHandler(event:CollectionEvent):void{

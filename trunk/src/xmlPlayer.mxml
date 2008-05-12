@@ -112,6 +112,7 @@
             var tempString:String = 'Artist: ' + item.artist + '\n' + 'Album: ' + item.album + '\n' + 'Track Title: ' + item.title;
             return tempString;
         }
+        
 	]]>
 </mx:Script>
 
