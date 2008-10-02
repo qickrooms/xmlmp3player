@@ -5,7 +5,7 @@
 	xmlns:vp="views.player.*" 
 	width="600" height="300" backgroundColor="#000000"
 	layout="absolute" creationComplete="init()" viewSourceURL="srcview/index.html">
-<mx:Script>
+<mx:Script> 
 	<![CDATA[
 	/*
 	Copyright (c) 2007, Axel Jensen, Maikel Sibbald
