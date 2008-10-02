@@ -751,7 +751,8 @@ package vo{
 
         private function progressHandler(event:ProgressEvent):void {
         	if(this.soundInstance != null){
-	        	this.length = this.soundInstance.length;
+	        	//this.length = this.soundInstance.length;
+	        	this.length = Math.ceil(this.soundInstance.length / (this.soundInstance.bytesLoaded / this.soundInstance.bytesTotal))
 				var tempMinutes:Number = Math.floor(this.length  / 1000 / 60);
 				var tempSeconds:Number = Math.floor(this.length  / 1000) % 60;
 				
